@@ -1,0 +1,8 @@
+sudo apt install iverilog gtkwave
+
+iverilog -V
+vvp -V
+gtkwave --version
+
+iverilog -o nome_output modulo_1.v ... modulo_n.v testbench.v
+vvp nome_output
