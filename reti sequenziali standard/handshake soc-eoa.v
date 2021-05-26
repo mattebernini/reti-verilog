@@ -2,15 +2,15 @@
 
 module consumatore (
     reset_, clock,
-    dav_, numero,
-    rfd, out 
+    eoc, numero,
+    soc, out 
 );
     input reset_, clock;
-    input dav_;             // al reset a 1 per ipotesi
+    input eoc;             // al reset a 1 per ipotesi
     input [7:0] numero;
-    output rfd, out;
+    output soc, out;
 
-    reg RFD; assign rfd = RFD; 
+    reg SOC; assign soc = SOC; 
     reg [7:0] COUNT;
     reg OUTR; assign out = OUTR;
 
@@ -20,28 +20,28 @@ module consumatore (
         begin
             STAR <= S0;
             COUNT <= 0;
-            RFD <= 1;       // siamo disposti ad accettare un nuovo dato
+            SOC <= 1;       // siamo disposti ad accettare un nuovo dato
             OUT <= 0;
         end
     always @(posedge clock) if(reset_==1) #3
         casex(STAR)
             S0:
                 begin
-                    STAR <= (dav_==0)? S1 : S0;
-                    RFD <= 1;
-                    COUNT <= numero;
+                    OUT <= 0;
+                    STAR <= (eoc==0)? S1 : S0;
+                    SOC <= 1;
                 end
             S1:
                 begin
-                    RFD <= 0;
-                    OUTR <= 1;
-                    COUNT <= COUNT - 1;
-                    STAR <= (COUNT==1)? S2 : S1;
+                    SOC <= 0;
+                    COUNT <= numero;
+                    STAR <= (eoc==1)? S2 : S1;
                 end
             S2:
                 begin
-                    OUT <= 0;
-                    STAR <= (dav_==1)? S0 : S2;                   
+                    OUTR <= 1;
+                    COUNT <= COUNT - 1;
+                    STAR <= (COUNT==1)? S0 : S2;
                 end
         endcase
 endmodule
